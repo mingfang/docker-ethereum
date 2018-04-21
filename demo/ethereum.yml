@@ -1,0 +1,69 @@
+namespaces:
+  {{namespace}}:
+    configmaps:
+    - name: ethereum
+      data:
+        app.json: |
+          [
+            {
+              "name"              : "node-app",
+              "script"            : "app.js",
+              "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+              "merge_logs"        : false,
+              "watch"             : false,
+              "max_restarts"      : 10,
+              "exec_interpreter"  : "node",
+              "exec_mode"         : "fork_mode",
+              "env":
+              {
+                "NODE_ENV"        : "production",
+                "RPC_HOST"        : "localhost",
+                "RPC_PORT"        : "8545",
+                "LISTENING_PORT"  : "30303",
+                "INSTANCE_NAME"   : "app",
+                "WS_SERVER"       : "ws://ethereum-netstats:3000",
+                "WS_SECRET"       : "secret",
+                "VERBOSITY"       : 2
+              }
+            }
+          ]
+
+    services:
+    - name: ethereum-mainnet
+      ports:
+      - {name: tcp, port: 30303}
+      - {name: http-rpc, port: 8545}
+      pod:
+        replicas: 1
+        containers:
+        - name: node
+          image: registry.rebelsoft.com/ethereum:latest
+        - name: eth-net-intelligence-api
+          image: registry.rebelsoft.com/eth-net-intelligence-api
+          volumeMounts:
+          - name: ethereum
+            mountPath: /eth-net-intelligence-api/app.json
+            subPath: app.json
+        volumes:
+        - name: ethereum
+          configMap:
+            name: ethereum
+
+    - name: ethereum-netstats
+      ports:
+      - {name: http, port: 3000}
+      annotations:
+        nginx:
+        - http:
+          - server: ethereum.*
+            paths:
+            - path: /
+      pod:
+        replicas: 1
+        containers:
+        - name: eth-netstats
+          image: registry.rebelsoft.com/eth-netstats
+          env:
+          - {name: WS_SECRET, value: "secret"}
+
+
