@@ -20,16 +20,15 @@ namespaces:
                 "RPC_HOST"        : "localhost",
                 "RPC_PORT"        : "8545",
                 "LISTENING_PORT"  : "30303",
-                "INSTANCE_NAME"   : "app",
                 "WS_SERVER"       : "ws://ethereum-netstats:3000",
                 "WS_SECRET"       : "secret",
-                "VERBOSITY"       : 2
+                "VERBOSITY"       : 1
               }
             }
           ]
 
     services:
-    - name: ethereum-mainnet
+    - name: ethereum-demo
       ports:
       - {name: tcp, port: 30303}
       - {name: http-rpc, port: 8545}
@@ -55,7 +54,7 @@ namespaces:
       annotations:
         nginx:
         - http:
-          - server: ethereum.*
+          - server: ethereum.{{namespace}}.*
             paths:
             - path: /
       pod:
