@@ -9,4 +9,4 @@ IP=`getent hosts ethereum-bootnode`
 export BOOTSTRAP_IP=$(echo $IP | cut -d" " -f1)
 
 exec 2>&1
-exec geth --cache 2048 --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" ${NETWORKID:"--networkid $NETWORKID"} ${BOOTNODES:"--bootnodes $BOOTNODES"} --verbosity 3
+exec geth --cache 2048 --rpc --rpcaddr "0.0.0.0" --rpccorsdomain "*" ${NETWORKID:+"--networkid $NETWORKID"} ${BOOTNODES:+"--bootnodes $BOOTNODES"} --verbosity 3
